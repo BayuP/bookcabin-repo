@@ -1,0 +1,143 @@
+basePath: /
+definitions:
+  domain.Flight:
+    properties:
+      aircraft:
+        type: string
+      airline:
+        type: string
+      airlineCode:
+        type: string
+      amenities:
+        items:
+          type: string
+        type: array
+      arrivalTime:
+        type: string
+      availableSeats:
+        type: integer
+      baggage:
+        type: string
+      departureTime:
+        type: string
+      destination:
+        type: string
+      durationMin:
+        type: integer
+      flightCode:
+        type: string
+      origin:
+        type: string
+      priceIDR:
+        format: int64
+        type: integer
+      stops:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Flight search aggregation service
+  title: BOOKCABIN Flight Search API
+  version: "1.0"
+paths:
+  /search:
+    get:
+      consumes:
+      - application/json
+      description: Search flights with filters and sorting
+      parameters:
+      - description: Origin airport code (e.g. CGK)
+        in: query
+        name: origin
+        required: true
+        type: string
+      - description: Destination airport code (e.g. DPS)
+        in: query
+        name: destination
+        required: true
+        type: string
+      - description: Departure date (YYYY-MM-DD)
+        in: query
+        name: departure_date
+        required: true
+        type: string
+      - description: Number of passengers
+        in: query
+        name: passengers
+        type: integer
+      - description: Cabin class (economy, business)
+        in: query
+        name: cabin_class
+        type: string
+      - description: Minimum price (IDR)
+        in: query
+        name: min_price
+        type: integer
+      - description: Maximum price (IDR)
+        in: query
+        name: max_price
+        type: integer
+      - description: Maximum stops
+        in: query
+        name: max_stops
+        type: integer
+      - description: Maximum duration (minutes)
+        in: query
+        name: max_duration
+        type: integer
+      - description: Airline codes (CSV or repeated), e.g. GA,ID
+        in: query
+        name: airlines
+        type: string
+      - description: Earliest departure time (HH:MM)
+        in: query
+        name: earliest_departure
+        type: string
+      - description: Latest departure time (HH:MM)
+        in: query
+        name: latest_departure
+        type: string
+      - description: Earliest arrival time (HH:MM)
+        in: query
+        name: earliest_arrival
+        type: string
+      - description: Latest arrival time (HH:MM)
+        in: query
+        name: latest_arrival
+        type: string
+      - description: Sort option
+        enum:
+        - price_asc
+        - price_desc
+        - duration_asc
+        - duration_desc
+        - departure_asc
+        - arrival_asc
+        - best_value
+        in: query
+        name: sort_by
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Flight'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "405":
+          description: Method Not Allowed
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Search flights
+      tags:
+      - Flights
+swagger: "2.0"
