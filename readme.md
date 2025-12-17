@@ -203,7 +203,6 @@ http://localhost:8080/swagger/index.html
 * Rate limiting
 * Pagination
 * Circuit breaker per provider
-* Stale-while-revalidate
 
 ---
 
