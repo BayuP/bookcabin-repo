@@ -21,3 +21,11 @@ type SearchRequest struct {
 	// sort
 	SortBy string `json:"sort_by,omitempty"`
 }
+
+type SearchResult struct {
+	Flights            []Flight
+	CacheHit           bool
+	ProvidersQueried   int
+	ProvidersSucceeded int
+	ProvidersFailed    int
+}

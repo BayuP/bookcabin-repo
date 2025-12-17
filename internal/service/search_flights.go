@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"bookcabin/internal/common"
@@ -21,18 +22,32 @@ type SearchFlightsUseCase struct {
 func (uc *SearchFlightsUseCase) Execute(
 	ctx context.Context,
 	req domain.SearchRequest,
-) ([]domain.Flight, error) {
+) (domain.SearchResult, error) {
 
 	cacheKey := searchCacheKey(req)
 
+	// CACHE HIT
 	if v, ok := uc.Cache.Get(cacheKey); ok {
 		if cached, ok := v.([]domain.Flight); ok {
-			return uc.filterAndSort(cached, req)
+			flights, _ := uc.filterAndSort(cached, req)
+
+			return domain.SearchResult{
+				Flights:            flights,
+				CacheHit:           true,
+				ProvidersQueried:   len(uc.Providers),
+				ProvidersSucceeded: len(uc.Providers),
+				ProvidersFailed:    0,
+			}, nil
 		}
 	}
 
-	var wg sync.WaitGroup
-	result := make(chan []domain.Flight, len(uc.Providers))
+	// CACHE MISS
+	var (
+		wg        sync.WaitGroup
+		result    = make(chan []domain.Flight, len(uc.Providers))
+		succeeded int32
+		failed    int32
+	)
 
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -44,9 +59,12 @@ func (uc *SearchFlightsUseCase) Execute(
 
 			flights, err := p.Search(req)
 			if err != nil {
+				atomic.AddInt32(&failed, 1)
 				log.Printf("[WARN] provider %s failed: %v", p.Name(), err)
 				return
 			}
+
+			atomic.AddInt32(&succeeded, 1)
 			result <- flights
 		}(p)
 	}
@@ -68,7 +86,14 @@ func (uc *SearchFlightsUseCase) Execute(
 
 	uc.Cache.Set(cacheKey, allFlights, 3*time.Minute)
 
-	return uc.filterAndSort(allFlights, req)
+	flights, _ := uc.filterAndSort(allFlights, req)
+	return domain.SearchResult{
+		Flights:            flights,
+		CacheHit:           false,
+		ProvidersQueried:   len(uc.Providers),
+		ProvidersSucceeded: int(succeeded),
+		ProvidersFailed:    int(failed),
+	}, nil
 }
 
 func (uc *SearchFlightsUseCase) filterAndSort(

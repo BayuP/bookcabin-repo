@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type FlightHandler struct {
@@ -45,7 +46,7 @@ func NewFlightHandler(fs *service.SearchFlightsUseCase) FlightHandler {
 //
 // @Param sort_by query string false "Sort option" Enums(price_asc,price_desc,duration_asc,duration_desc,departure_asc,arrival_asc,best_value)
 //
-// @Success 200 {object} domain.Flight
+// @Success 200 {object} domain.FlightSearchResponse
 // @Failure 400 {string} string "Bad Request"
 // @Failure 405 {string} string "Method Not Allowed"
 // @Failure 500 {string} string "Internal Server Error"
@@ -58,6 +59,7 @@ func (h *FlightHandler) Search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	start := time.Now()
 	q := r.URL.Query()
 
 	req := domain.SearchRequest{
@@ -123,14 +125,32 @@ func (h *FlightHandler) Search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	flights, err := h.FlightService.Execute(r.Context(), req)
+	result, err := h.FlightService.Execute(r.Context(), req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	resp := domain.FlightSearchResponse{
+		SearchCriteria: domain.SearchCriteria{
+			Origin:        req.Origin,
+			Destination:   req.Destination,
+			DepartureDate: req.DepartureDate,
+			Passengers:    req.Passengers,
+			CabinClass:    req.CabinClass,
+		},
+		Metadata: domain.Metadata{
+			TotalResults:       len(result.Flights),
+			ProvidersQueried:   result.ProvidersQueried,
+			ProvidersSucceeded: result.ProvidersSucceeded,
+			ProvidersFailed:    result.ProvidersFailed,
+			SearchTimeMS:       int(time.Since(start).Milliseconds()),
+			CacheHit:           result.CacheHit,
+		},
+		Flights: result.Flights,
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"results": flights,
-	})
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(resp)
 }
