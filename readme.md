@@ -25,7 +25,7 @@ go version
 ### 2️⃣ Clone & Install
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/BayuP/bookcabin-repo.git
 cd bookcabin
 go mod tidy
 ```
@@ -150,7 +150,7 @@ internal/
 ### ✅ Open / Closed
 
 * Add new airline provider without touching existing logic
-* Implement `FlightProvider` interface
+* Implement `FlightInterface` interface
 
 ### ✅ Liskov Substitution
 
@@ -158,7 +158,7 @@ internal/
 
 ### ✅ Interface Segregation
 
-* Small focused interfaces (`FlightProvider`, `Repository`)
+* Small focused interfaces `FlightInterface`
 
 ### ✅ Dependency Inversion
 
@@ -183,49 +183,13 @@ internal/
 * Filters do NOT affect cache key
 
 ---
-
-## 📜 Swagger (OpenAPI)
-
-### Install swag
-
-```bash
-go install github.com/swaggo/swag/cmd/swag@latest
-```
-
-### Add Swagger Annotations (example)
-
-```go
-// Search flights
-// @Summary Search flights
-// @Description Search flights with filters
-// @Tags Flights
-// @Accept json
-// @Produce json
-// @Param origin query string true "Origin airport"
-// @Param destination query string true "Destination airport"
-// @Param departure_date query string true "Departure date"
-// @Param passengers query int true "Passengers"
-// @Param cabin_class query string true "Cabin class"
-// @Param airlines query string false "Airlines CSV"
-// @Success 200 {object} map[string][]domain.Flight
-// @Router /search [get]
-```
-
-### Generate Docs
-
-```bash
-swag init -g cmd/api/main.go
-```
-
 ### Swagger UI
-
 ```
 http://localhost:8080/swagger/index.html
 ```
-
 ---
 
-## 🧪 Testing
+## Testing
 
 * Mock providers in `internal/mock`
 * Replace real providers in `main.go`
@@ -233,7 +197,7 @@ http://localhost:8080/swagger/index.html
 
 ---
 
-## 🚧 Future Improvements
+## Future Improvements
 
 * Redis cache
 * Rate limiting
@@ -243,14 +207,3 @@ http://localhost:8080/swagger/index.html
 
 ---
 
-## 👨‍💻 Author Notes
-
-This codebase is intentionally designed for:
-
-* System design interviews
-* Real-world extensibility
-* Production-ready patterns
-
----
-
-Happy flying ✈️
