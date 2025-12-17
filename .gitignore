@@ -1,0 +1,17 @@
+cat <<EOF > .gitignore
+# Go build
+/bin/
+/dist/
+*.exe
+*.test
+
+# Swagger generated
+docs/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+EOF
