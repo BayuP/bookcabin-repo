@@ -136,7 +136,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.Flight"
+                            "$ref": "#/definitions/domain.FlightSearchResponse"
                         }
                     },
                     "400": {
@@ -209,6 +209,67 @@ const docTemplate = `{
                     "format": "int64"
                 },
                 "stops": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.FlightSearchResponse": {
+            "type": "object",
+            "properties": {
+                "flights": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Flight"
+                    }
+                },
+                "metadata": {
+                    "$ref": "#/definitions/domain.Metadata"
+                },
+                "search_criteria": {
+                    "$ref": "#/definitions/domain.SearchCriteria"
+                }
+            }
+        },
+        "domain.Metadata": {
+            "type": "object",
+            "properties": {
+                "cache_hit": {
+                    "type": "boolean"
+                },
+                "providers_failed": {
+                    "type": "integer"
+                },
+                "providers_queried": {
+                    "type": "integer"
+                },
+                "providers_succeeded": {
+                    "type": "integer"
+                },
+                "search_time_ms": {
+                    "type": "integer"
+                },
+                "total_results": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.SearchCriteria": {
+            "type": "object",
+            "properties": {
+                "cabin_class": {
+                    "type": "string"
+                },
+                "departure_date": {
+                    "description": "YYYY-MM-DD",
+                    "type": "string"
+                },
+                "destination": {
+                    "type": "string"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "passengers": {
                     "type": "integer"
                 }
             }

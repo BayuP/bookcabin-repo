@@ -34,6 +34,46 @@ definitions:
       stops:
         type: integer
     type: object
+  domain.FlightSearchResponse:
+    properties:
+      flights:
+        items:
+          $ref: '#/definitions/domain.Flight'
+        type: array
+      metadata:
+        $ref: '#/definitions/domain.Metadata'
+      search_criteria:
+        $ref: '#/definitions/domain.SearchCriteria'
+    type: object
+  domain.Metadata:
+    properties:
+      cache_hit:
+        type: boolean
+      providers_failed:
+        type: integer
+      providers_queried:
+        type: integer
+      providers_succeeded:
+        type: integer
+      search_time_ms:
+        type: integer
+      total_results:
+        type: integer
+    type: object
+  domain.SearchCriteria:
+    properties:
+      cabin_class:
+        type: string
+      departure_date:
+        description: YYYY-MM-DD
+        type: string
+      destination:
+        type: string
+      origin:
+        type: string
+      passengers:
+        type: integer
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -124,7 +164,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.Flight'
+            $ref: '#/definitions/domain.FlightSearchResponse'
         "400":
           description: Bad Request
           schema:
